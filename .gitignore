@@ -1,0 +1,7 @@
+.env
+service-account-key.json
+*.json
+!package.json
+__pycache__/
+*.pyc
+.streamlit/
