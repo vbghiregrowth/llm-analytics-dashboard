@@ -4,4 +4,4 @@ service-account-key.json
 !package.json
 __pycache__/
 *.pyc
-.streamlit/
+.streamlit/secrets.toml
