@@ -362,13 +362,13 @@ st.sidebar.markdown("""
 
 ga4_property_id = st.sidebar.text_input(
     "GA4 Property ID",
-    value=os.environ.get("GA4_PROPERTY_ID", ""),
+    value=st.secrets.get("GA4_PROPERTY_ID", os.environ.get("GA4_PROPERTY_ID", "")),
     help="Numeric property ID from GA4 Admin > Property Details",
 )
 
 gsc_site_url = st.sidebar.text_input(
     "Search Console Site URL",
-    value=os.environ.get("GSC_SITE_URL", ""),
+    value=st.secrets.get("GSC_SITE_URL", os.environ.get("GSC_SITE_URL", "")),
     help="e.g. https://example.com or sc-domain:example.com",
 )
 

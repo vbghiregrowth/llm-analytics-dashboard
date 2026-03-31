@@ -13,14 +13,17 @@ ALL_SCOPES = GA4_SCOPES + GSC_SCOPES
 
 def get_credentials(scopes=None):
     """
-    Load Google credentials from a service account JSON key file.
-    Falls back to Application Default Credentials if no key file is found.
+    Load Google credentials from:
+    1. Local service account JSON key file (GOOGLE_APPLICATION_CREDENTIALS)
+    2. Streamlit secrets (for Streamlit Cloud deployment)
+    3. Application Default Credentials
 
     Returns (credentials, error_message) tuple.
     """
     if scopes is None:
         scopes = ALL_SCOPES
 
+    # 1. Local service account key file
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
 
     if creds_path and os.path.exists(creds_path):
@@ -32,7 +35,18 @@ def get_credentials(scopes=None):
         except Exception as e:
             return None, f"Failed to load service account key: {e}"
 
-    # Fall back to Application Default Credentials
+    # 2. Streamlit secrets (for cloud deployment)
+    try:
+        import streamlit as st
+        if "gcp_service_account" in st.secrets:
+            credentials = service_account.Credentials.from_service_account_info(
+                dict(st.secrets["gcp_service_account"]), scopes=scopes
+            )
+            return credentials, None
+    except Exception:
+        pass
+
+    # 3. Fall back to Application Default Credentials
     try:
         credentials, project = default(scopes=scopes)
         return credentials, None
@@ -40,7 +54,8 @@ def get_credentials(scopes=None):
         return None, (
             "No credentials found. Please either:\n"
             "1. Set GOOGLE_APPLICATION_CREDENTIALS to your service account JSON key path\n"
-            "2. Run `gcloud auth application-default login`\n\n"
+            "2. Add gcp_service_account to Streamlit secrets (for cloud deployment)\n"
+            "3. Run `gcloud auth application-default login`\n\n"
             f"Error: {e}\n\n"
             "See setup_guide.md for detailed instructions."
         )
