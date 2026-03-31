@@ -362,13 +362,13 @@ st.sidebar.markdown("""
 
 ga4_property_id = st.sidebar.text_input(
     "GA4 Property ID",
-    value=st.secrets.get("GA4_PROPERTY_ID", os.environ.get("GA4_PROPERTY_ID", "")),
+    value=st.secrets["GA4_PROPERTY_ID"] if "GA4_PROPERTY_ID" in st.secrets else os.environ.get("GA4_PROPERTY_ID", ""),
     help="Numeric property ID from GA4 Admin > Property Details",
 )
 
 gsc_site_url = st.sidebar.text_input(
     "Search Console Site URL",
-    value=st.secrets.get("GSC_SITE_URL", os.environ.get("GSC_SITE_URL", "")),
+    value=st.secrets["GSC_SITE_URL"] if "GSC_SITE_URL" in st.secrets else os.environ.get("GSC_SITE_URL", ""),
     help="e.g. https://example.com or sc-domain:example.com",
 )
 
@@ -503,7 +503,8 @@ try:
     with st.spinner("Loading GA4 traffic data..."):
         traffic_df = load_ga4_traffic(ga4_property_id, date_range_days, start_date, end_date)
 except Exception as e:
-    show_error(f"Failed to connect to GA4: {e}")
+    import traceback
+    show_error(f"Failed to connect to GA4: {e}\n\n```\n{traceback.format_exc()}\n```")
 
 if traffic_df.empty:
     st.warning("No traffic data found for this date range.")
